@@ -33,7 +33,7 @@ yarn openapi
 │   │   └──  portals-schema     # Auto generated file by yarn openapi
 │   ├── components              # All the app custom components
 │   │   └── **/
-│   │       └── *.tsx
+│   │       ├── *.tsx
 │   │       └── *.module.scss
 │   ├── hooks                   # App hooks such as useOnScreen to use the IntersectionObserver for endless scroll
 │   │   └── *.ts
