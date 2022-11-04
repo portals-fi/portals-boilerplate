@@ -1,0 +1,45 @@
+html,
+body {
+  font-size: 18px;
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    color: white;
+    background: black;
+  }
+}
+
+input {
+  border-radius: 5px;
+  border: 2px solid rgb(165, 165, 165);
+  padding: 12px 15px;
+  font-size: inherit;
+}
+button {
+  border-radius: 5px;
+  border: 2px solid rgb(165, 165, 165);
+  padding: 12px 15px;
+  font-size: inherit;
+}
+
+/* This rule is just to remove the flickering when closing modal */
+.react-responsive-modal-overlay, .react-responsive-modal-container, .react-responsive-modal-modal {
+  animation-fill-mode: forwards!important;
+}

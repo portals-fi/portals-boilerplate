@@ -1,0 +1,28 @@
+.tokenButton {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+}
+
+.tokenInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+
+  .tokenSymbol {
+    font-size: 1.1em;
+  }
+  .tokenName {
+    font-size: 0.7em;
+    opacity: 0.7;
+  }
+}
+.netPlat {
+  font-size: 0.7em;
+  opacity: 0.7;
+  border: 1px solid rgb(165, 165, 165);
+  border-radius: 10px;
+  padding: 3px 10px;
+}

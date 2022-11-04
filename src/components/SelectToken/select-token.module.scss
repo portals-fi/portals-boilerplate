@@ -1,0 +1,28 @@
+.tokensContainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.searchInput {
+  width: calc(100% - 54px);
+}
+
+.tokensList {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  overflow-y: scroll;
+  flex: 1;
+  flex-direction: column;
+
+  button {
+    padding: 5px;
+    border-radius: 0;
+    &:not(:hover) {
+      border: 2px solid transparent;
+    }
+  }
+}

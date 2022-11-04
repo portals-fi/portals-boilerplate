@@ -1,0 +1,35 @@
+
+.inputAmountContainer {
+  position: relative;
+  .inputAmount {
+    width: 100%;
+
+    &.hasBalance {
+      padding: 16px 15px 9px 15px;
+    }
+  }
+  .inputAmountLoading {
+    position: absolute;
+    right: .5em;
+    top: .5em;
+  }
+
+  .accountBalanceInfo {
+    position: absolute;
+    top: 2px;
+    left: 18px;
+    font-size: 0.65em;
+    opacity: 0.7;
+  }
+
+  .maxButton {
+    border: 1px solid rgb(165, 165, 165);
+    background: rgb(165, 165, 165);
+    cursor: pointer;
+    padding: 0 5px;
+    margin: 1px 0 0 5px;
+    font-weight: bold;
+    color: rgb(60, 60, 255);
+  }
+}
+

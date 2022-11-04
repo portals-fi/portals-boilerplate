@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org/) app boilerplate for [portals API](https://portals.fi) bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+This app is a simplified version of the [portals swap app](https://app.portals.fi/).
 
 ## Getting Started
 
@@ -14,21 +16,171 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+To update the typescript interfaces run:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```bash
+npm run openapi
+# or
+yarn openapi
+```
 
-## Learn More
+## Project structure
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+├── src
+│   ├── api                     # All the interaction with the portals API is done here
+│   │   ├── fetcher             # Add here all the new API calls you need
+│   │   └──  portals-schema     # Auto generated file by yarn openapi
+│   ├── components              # All the app custom components
+│   │   └── **/
+│   │       └── *.tsx
+│   │       └── *.module.scss
+│   ├── hooks                   # App hooks such as useOnScreen to use the IntersectionObserver for endless scroll
+│   │   └── *.ts
+│   ├── pages                   # All the app routes, this boilerplate only have the default / route, add here new pages.
+│   │   ├── _app.tsx
+│   │   └── index.tsx
+│   ├── store                   # Basic "global" store for this boilerplate, uses the react context api.
+│   │   ├── index.tsx
+│   │   └── Reducer.ts          # Add new store objects here
+│   ├── styles                  # Global and pages/routes styles
+│   │   ├── globals.css
+│   │   └── *.module.scss
+│   ├── types                   # Place to extend typescript interfaces when packages don't provide it (ex: window.ethereum)
+│   │   └── *.d.ts
+│   ├── utils                   # Util or auxiliary code goes here, ex: map of networks with additional information
+│   │   └── *.ts
+├── public                      # Default public assets
+│   └── favicon.ico
+├── node_modules
+├── package.json
+├── next.config.js              # next app configs
+├── next.env.d.ts
+├── README.md                   # This readme file
+├── tsconfig.json               # Typescript transpiler settings
+├── .eslintrc.json              # eslint settings
+└── .gitignore
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Add a new request to portals
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+The API end points can be found [here](https://docs.portals.fi/docs/api/).
 
-## Deploy on Vercel
+First we need to add a new entry to the end of the `src/api/fetcher.ts` file, lets fetch a list of available networks:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```typescript
+export const getNetworksList = fetcher
+  .path("/v1/networks") // check the desired path in the api docs
+  .method("get") // select here the proper request method
+  .create();
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Now we need to call it in a component, this method returns a Promise that need to be resolved. In this example we are getting a list of balances from the user account.
+You can check it in `src/components/SwapButton/index.tsx`:
+
+```typescript
+try {
+  const inputBalance = await getAccountBalances({
+    ownerAddress: "0x...", // The user account address
+    networks: ["ethereum"], // The network in use
+  });
+
+  dispatch({
+    // Save the result in the store to be used later in the ui, This will be explained later in the "Add new structure to the app storage" section
+    type: actionTypes.SET_SELECTED_ACCOUNT_BALANCES,
+    value: inputBalance.data.balances,
+  });
+} catch (err) {
+  if (err instanceof getAccountBalances.Error) {
+    console.error(err.getActualType()); // Do something with the error
+  }
+}
+```
+
+## Add new structure to the app storage
+
+This boilerplate uses the react context api to manage the store, you can use it as is or you can replace it with a more robust solution. In this case we are adding a way to save the account balances to the store.
+
+In the `src/store/Reducer.ts` search for the `IState` interface, and add there the structure, in this example we are adding the selected user balances:
+
+```typescript
+export interface IState {
+  (...)
+  accounts: {
+    (...)
+    selectedBalances?: components["schemas"]["AccountResponse"]["balances"]; // We can get the structure directly from the src/api/portals-schema.ts
+  };
+}
+```
+
+In the same file, find the initialState variable and add a initial value for the new structure:
+
+```typescript
+export const initialState: IState = {
+  (...)
+  accounts: {
+    (...)
+    selectedBalances: [], // we are initializing it as an empty array
+  },
+};
+```
+
+Now we need to add the constants to be used as actions when we call the API, in the `actionTypes` enum add:
+
+```typescript
+export enum actionTypes {
+  (...)
+  SET_SELECTED_ACCOUNT_BALANCES = "SET_SELECTED_ACCOUNT_BALANCES",
+}
+```
+
+and in the type `IAction` add:
+
+```typescript
+export type IAction = (...) | {
+  type: actionTypes.SET_SELECTED_ACCOUNT_BALANCES;
+  value: components["schemas"]["AccountResponse"]["balances"];
+};
+```
+
+and finally we just need to set the reducer behavior, find the `reducer` constant and add:
+
+```typescript
+const reducer = (state: IState, action: IAction): IState => {
+  switch (action.type) {
+    (...) // other actions
+    case actionTypes.SET_SELECTED_ACCOUNT_BALANCES:
+    return {
+      ...state,
+      accounts: {
+        ...state.accounts,
+        selectedBalances: action.value,
+      },
+    };
+  default:
+    return state;
+}
+```
+
+And it's done, to be able to get or set data from or to this store in a component we just need to use the store hook (`useStore`):
+
+```typescript
+const [{ accounts }, dispatch] = useStore(); // this cant be inside any other hook or if condition
+
+console.log(accounts.selectedBalances) // Log all the balances of the selected account
+
+dispatch({ // Save a list of balances to the store
+ type: actionTypes.SET_SELECTED_ACCOUNT_BALANCES, // The action we created later in the src/store/Reducer.ts
+ value: [...], // list of balances that we get from the portals API
+});
+```
+
+Now we can check it in the `src/components/SwapButton/index.tsx`.
+
+## Make a real transaction with portals API
+
+First we need to get the transaction data to be called with metamask:
+
+```typescript
+
+```
