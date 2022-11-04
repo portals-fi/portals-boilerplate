@@ -64,7 +64,7 @@ yarn openapi
 
 ## Add a new request to portals
 
-The API end points can be found [here](https://docs.portals.fi/docs/api/).
+The API endpoints can be found [here](https://docs.portals.fi/docs/api/).
 
 First we need to add a new entry to the end of the `src/api/fetcher.ts` file, lets fetch a list of available networks:
 
@@ -179,8 +179,35 @@ Now we can check it in the `src/components/SwapButton/index.tsx`.
 
 ## Make a real transaction with portals API
 
-First we need to get the transaction data to be called with metamask:
+We have a full functional example in `src/components/SwapButton/index.tsx`.
 
 ```typescript
-
+const resp = await fetchFromPortal({
+  network: network.selected,
+  sellToken: inputToken.address,
+  sellAmount: `${parseFloat(amount) * 10 ** inputToken.decimals}`,
+  buyToken: outputToken.address,
+  takerAddress: accounts.selected,
+  slippagePercentage: 0.005,
+  validate: true,
+});
+setPortalTx(resp.data);
 ```
+
+Here we are getting the transaction information from the portals API and saving it in a local state, the `fetchFromPortal` implementation can be found in `src/api/fetcher.ts`.
+
+```typescript
+const tx = {
+  ...portalTx.tx, // Previously saved transaction information from portals API
+  value: portalTx.tx.value?.hex, // Getting only the HEX value for compatibility reasons
+  gasLimit: portalTx.tx.gasLimit?.hex, // Getting only the HEX value for compatibility reasons
+};
+// Call to metamask to make the transaction:
+const txHash = await window.ethereum?.request<
+  components["schemas"]["PortalResponse"]["tx"]
+>({ method: "eth_sendTransaction", params: [tx] });
+console.log(txHash);
+```
+
+Because some parameters receive information in a slight different way than the portals API provides we need to make some adjustments. The metamask API receives the `value` and `gasLimit` as a HEX string, and portals sends an object with two fields, so we need to get only the HEX value.
+The second part of the code we just take the transaction information and pass it to the metamask to preform the request.
