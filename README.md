@@ -71,7 +71,7 @@ First we need to add a new entry to the end of the `src/api/fetcher.ts` file, le
 ```typescript
 export const getNetworksList = fetcher
   .path("/v1/networks") // check the desired path in the api docs
-  .method("get") // select here the proper request method
+  .method("get") // add here the proper request method
   .create();
 ```
 
