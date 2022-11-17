@@ -1,6 +1,6 @@
-This is a [Next.js](https://nextjs.org/) app boilerplate for [portals API](https://portals.fi) bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org/) boilerplate app for the [Portals API](https://portals.fi) bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-This app is a simplified version of the [portals swap app](https://app.portals.fi/).
+This app is a simplified version of the [Portals Swap ](https://app.portals.fi/) app and can be freely forked, cloned, or modified to create your own experience powered by the Portals API.
 
 ## Getting Started
 
