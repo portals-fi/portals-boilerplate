@@ -1,5 +1,6 @@
 import { getTokensList } from "api/fetcher";
 import { components } from "api/portals-schema";
+import LoadingSpinner from "components/LoadingSpinner";
 import TokenButton from "components/TokenButton";
 import { useOnScreen } from "hooks/useOnScreen";
 import { FC, useEffect, useRef, useState } from "react";
@@ -12,6 +13,15 @@ interface Props {
   selectedNetwork: SupportedNetworks;
 }
 
+const buildTokenList = (
+  prev: components["schemas"]["Token"][],
+  more: components["schemas"]["Token"][]
+): components["schemas"]["Token"][] =>
+  [...prev, ...more].filter(
+    (value, index, self) =>
+      !self.slice(0, index).find((t) => t.key === value.key)
+  );
+
 const SelectToken: FC<Props> = ({
   querySearch,
   onSelected,
@@ -20,61 +30,76 @@ const SelectToken: FC<Props> = ({
   const [tokens, setTokens] = useState<components["schemas"]["Token"][]>([]);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [pageItems, setPageItems] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
   const [more, setMore] = useState<boolean>(false);
-  const [newPage, setNewPage] = useState<number>(0);
+  // const [newPage, setNewPage] = useState<number>(0);
   const [page, setPage] = useState<number>(0);
-  const [newSearch, setNewSearch] = useState<string>(querySearch || "");
-  const [search, setSearch] = useState<string>();
+  // const [newSearch, setNewSearch] = useState<string>(querySearch || "");
+  const [search, setSearch] = useState<string>(querySearch || "");
   const debTimeout = useRef<NodeJS.Timeout>();
   const hasMoreRef = useRef<HTMLDivElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const isOnScreen = useOnScreen(hasMoreRef, scrollableRef);
 
+  // Change page when scrolling down:
   useEffect(() => {
-    if (search !== newSearch || page !== newPage) {
-      (async () => {
-        try {
-          const tokensListResponse = (
-            await getTokensList({
-              search: encodeURIComponent(newSearch),
-              page: newPage,
+    if (isOnScreen && more && !loading) {
+      setPage((prev) => prev + 1);
+    }
+  }, [isOnScreen, more, loading]);
+
+  // Fetch tokens when mount or page/search change
+  useEffect(() => {
+    const controller = new AbortController();
+    (async () => {
+      setLoading(true);
+      try {
+        const tokensListResponse = (
+          await getTokensList(
+            {
+              search,
+              page,
               // platforms: ["native"],
               networks: [selectedNetwork],
               sortBy: "liquidity",
-            })
-          ).data;
-
-          setTokens((prev) =>
-            newPage > 0
-              ? [...prev, ...tokensListResponse.tokens]
-              : tokensListResponse.tokens
-          );
-          setTotalItems(tokensListResponse.totalItems);
-          setPageItems(tokensListResponse.pageItems);
-          setMore(tokensListResponse.more);
-          setPage(tokensListResponse.page);
-          setSearch(newSearch || "");
-        } catch (e) {
-          if (e instanceof getTokensList.Error) {
-            const error = e.getActualType();
-            console.error(error);
-          }
+            },
+            { signal: controller.signal }
+          )
+        ).data;
+        setTokens((prev) =>
+          (page > 0
+            ? buildTokenList(prev, tokensListResponse.tokens)
+            : tokensListResponse.tokens
+          ).map((token) => ({
+            ...token,
+            image:
+              !!token.image && token.image.startsWith("http")
+                ? token.image
+                : "",
+          }))
+        );
+        setTotalItems(tokensListResponse.totalItems);
+        setPageItems(tokensListResponse.pageItems);
+        setMore(tokensListResponse.more);
+      } catch (e) {
+        if (e instanceof getTokensList.Error) {
+          const error = e.getActualType();
+          console.error(error);
         }
-      })();
-    }
-  }, [newSearch, newPage, search, page, selectedNetwork]);
-
-  useEffect(() => {
-    if (isOnScreen && more) {
-      setNewPage((prev) => prev + 1);
-    }
-  }, [isOnScreen, more]);
+      }
+      // Hack to wait for the useOnScreen to update:
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+    })();
+    return () => controller.abort();
+  }, [search, page, selectedNetwork]);
 
   const handleOnInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
     clearTimeout(debTimeout.current);
     debTimeout.current = setTimeout(() => {
-      setNewPage(0);
-      setNewSearch(ev.target.value);
+      setPage(0);
+      setSearch(ev.target.value);
     }, 500);
   };
 
@@ -85,9 +110,19 @@ const SelectToken: FC<Props> = ({
         type="text"
         onChange={handleOnInputChange}
         placeholder="Ex: Eth"
-        defaultValue={newSearch}
+        defaultValue={search}
       />
       <div className={st.tokensList} ref={scrollableRef}>
+        {tokens.length === 0 && !loading && !!search && (
+          <div className={st.noResults}>
+            There are no results for &quot;{search}&quot;
+          </div>
+        )}
+        {tokens.length === 0 && loading && (
+          <div className={st.noResults}>
+            <LoadingSpinner className={st.loadingSpinner} visible={true} />
+          </div>
+        )}
         {tokens.map((token) => (
           <TokenButton
             key={token.key}
@@ -97,11 +132,7 @@ const SelectToken: FC<Props> = ({
             token={token}
           />
         ))}
-        <div
-          style={{ height: "20px", width: "100%" }}
-          ref={hasMoreRef}
-          className={st.hasMore}
-        >
+        <div ref={hasMoreRef} className={st.hasMore}>
           {more && "Loading..."}
         </div>
       </div>

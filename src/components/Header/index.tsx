@@ -90,14 +90,16 @@ const Header = () => {
       </button>
       <Modal open={openNetworkModal} onClose={handleOnCloseNetworkModal} center>
         <div className={st.networksContainer}>
-          <h2>Select a network:</h2>
-          {network.available
-            .filter((net) => net !== network.selected)
-            .map((net) => (
-              <button key={net} onClick={() => handleOnNetworkSelected(net)}>
-                <>{NETWORK_INFO[net]?.name}</>
-              </button>
-            ))}
+          <h2 className={st.modalTitle}>Select a network:</h2>
+          <div className={st.networksList}>
+            {network.available
+              .filter((net) => net !== network.selected)
+              .map((net) => (
+                <button key={net} onClick={() => handleOnNetworkSelected(net)}>
+                  <>{NETWORK_INFO[net]?.name}</>
+                </button>
+              ))}
+          </div>
         </div>
       </Modal>
       {accounts.status !== "connected" ? (

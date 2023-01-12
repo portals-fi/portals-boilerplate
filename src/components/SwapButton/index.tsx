@@ -8,9 +8,15 @@ interface Props {
   inputToken?: components["schemas"]["Token"];
   outputToken?: components["schemas"]["Token"];
   amount?: string;
+  onReviewOrder?: (data: components["schemas"]["PortalResponse"]) => void;
 }
 
-const SwapButton: FC<Props> = ({ inputToken, outputToken, amount }) => {
+const SwapButton: FC<Props> = ({
+  inputToken,
+  outputToken,
+  amount,
+  onReviewOrder,
+}) => {
   const [{ accounts, network }, dispatch] = useStore();
   const [approvalTx, setApprovalTx] =
     useState<components["schemas"]["ApprovalResponse"]>();
@@ -18,7 +24,7 @@ const SwapButton: FC<Props> = ({ inputToken, outputToken, amount }) => {
     useState<components["schemas"]["PortalResponse"]>();
   const [loading, setLoading] = useState(false);
   const accountBalance = accounts.selectedBalances?.find(
-    (bal) => bal.id === inputToken?.id
+    (bal) => bal.key === inputToken?.key
   );
 
   const canSwap =
@@ -45,6 +51,7 @@ const SwapButton: FC<Props> = ({ inputToken, outputToken, amount }) => {
             validate: true,
           });
           setPortalTx(resp.data);
+          if (onReviewOrder) onReviewOrder(resp.data);
         } catch (e) {
           if (e instanceof fetchFromPortal.Error) {
             const error = e.getActualType();
@@ -75,7 +82,7 @@ const SwapButton: FC<Props> = ({ inputToken, outputToken, amount }) => {
       onClick={handleOnSwapClick}
       disabled={!canSwap}
     >
-      {portalTx ? "Swap" : "Validate Transaction"}
+      {portalTx ? "Swap" : "Review Order"}
     </button>
   );
 };
