@@ -1,11 +1,10 @@
-import { getAccountBalances } from "api/fetcher";
 import { components } from "api/portals-schema";
 import Modal from "components/Modal";
 import SelectToken from "components/SelectToken";
 import TokenButton from "components/TokenButton";
-import { FC, useEffect, useState } from "react";
+import useAccountBalances from "hooks/useAccounts";
+import { FC, useState } from "react";
 import { useStore } from "store";
-import { actionTypes } from "store/Reducer";
 import InputAmount from "../InputAmount";
 import st from "../inputs.module.scss";
 
@@ -14,8 +13,10 @@ const amountRegExp = /^[0-9]*[.]?[0-9]*$/;
 interface Props {
   amount: string;
   setAmount: (amount: string) => void;
-  onTokenChange: (token: components["schemas"]["Token"]) => void;
-  token: components["schemas"]["Token"] | undefined;
+  onTokenChange: (token: components["schemas"]["TokenResponseDto"]) => void;
+  token: components["schemas"]["TokenResponseDto"] | undefined;
+  disabled?: boolean;
+  tokenChangeDisabled?: boolean;
 }
 
 const InputBuyToken: FC<Props> = ({
@@ -23,42 +24,22 @@ const InputBuyToken: FC<Props> = ({
   setAmount,
   onTokenChange,
   token,
+  disabled = false,
+  tokenChangeDisabled = false,
 }) => {
   const [openSwapInputModal, setOpenSwapInputModal] = useState(false);
-  const [loadingFetchBalances, setLoadingFetchBalances] = useState(false);
   const onOpenSwapInputModal = () => setOpenSwapInputModal(true);
   const onCloseSwapInputModal = () => setOpenSwapInputModal(false);
-  const [{ accounts, network }, dispatch] = useStore();
+  const [{ accounts, network }] = useStore();
 
-  useEffect(() => {
-    (async () => {
-      if (accounts.selected) {
-        setLoadingFetchBalances(true);
-        try {
-          const inputBalance = await getAccountBalances({
-            ownerAddress: accounts.selected,
-            networks: [network.selected],
-          });
-          dispatch({
-            type: actionTypes.SET_SELECTED_ACCOUNT_BALANCES,
-            value: inputBalance.data.balances,
-          });
-        } catch (err) {
-          if (err instanceof getAccountBalances.Error) {
-            console.error(err.getActualType());
-          }
-        }
-        setLoadingFetchBalances(false);
-      }
-    })();
-  }, [accounts.selected, network.selected, dispatch]);
+  const { isLoading: loadingFetchBalances } = useAccountBalances();
 
   const balances = accounts.selectedBalances?.find((bal) => {
     return bal.key === token?.key;
   });
 
   const handleOnSelectedSwapInputToken = (
-    token: components["schemas"]["Token"]
+    token: components["schemas"]["TokenResponseDto"]
   ) => {
     onTokenChange(token);
     onCloseSwapInputModal();
@@ -86,6 +67,7 @@ const InputBuyToken: FC<Props> = ({
         className={st.selectAToken}
         onClick={onOpenSwapInputModal}
         token={token}
+        disabled={tokenChangeDisabled}
       />
       <Modal
         open={openSwapInputModal}
@@ -96,15 +78,15 @@ const InputBuyToken: FC<Props> = ({
         <SelectToken
           querySearch={token?.symbol || ""}
           onSelected={handleOnSelectedSwapInputToken}
-          selectedNetwork={network.selected}
         />
       </Modal>
       <InputAmount
         className={st.amountInput}
         value={amount}
         onChange={handleOnSwapInputAmountChange}
-        disabled={!token}
+        disabled={!token || disabled}
         loading={loadingFetchBalances}
+        token={token}
         accountBalance={balances ? [balances] : undefined}
       />
     </>

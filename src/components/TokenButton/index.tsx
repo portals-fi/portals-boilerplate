@@ -10,7 +10,7 @@ interface Props
     ButtonHTMLAttributes<HTMLButtonElement>,
     HTMLButtonElement
   > {
-  token?: components["schemas"]["Token"];
+  token?: components["schemas"]["TokenResponseDto"];
 }
 
 const TokenButton: FC<Props> = ({ token, children, className, ...props }) => {

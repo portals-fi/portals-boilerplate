@@ -2,6 +2,8 @@ import { components } from "api/portals-schema";
 import cls from "classnames";
 import LoadingSpinner from "components/LoadingSpinner";
 import { DetailedHTMLProps, FC, InputHTMLAttributes, useRef } from "react";
+import { AccountBalance } from "store/Reducer";
+import { maxAmountSpend } from "utils/maxAmountSpend";
 import st from "./input-amount.module.scss";
 
 interface Props
@@ -10,25 +12,31 @@ interface Props
     HTMLInputElement
   > {
   loading?: boolean;
-  accountBalance?: components["schemas"]["AccountResponse"]["balances"];
+  token?: components["schemas"]["TokenResponseDto"];
+  accountBalance?: AccountBalance[];
 }
 
 const InputAmount: FC<Props> = ({
   className,
   loading,
   accountBalance,
+  token,
   ...props
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const maxAmount = maxAmountSpend(
+    (accountBalance || [])[0]?.balance || 0,
+    token?.platform === "native"
+  );
 
   const handleOnMaxClick = () => {
-    if (inputRef.current && accountBalance && accountBalance[0]?.balance) {
+    if (inputRef.current && maxAmount) {
       const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
         window.HTMLInputElement.prototype,
         "value"
       )?.set;
       // this is needed to trigger a react onChange event:
-      nativeInputValueSetter?.call(inputRef.current, accountBalance[0].balance);
+      nativeInputValueSetter?.call(inputRef.current, maxAmount);
       var ev = new Event("input", { bubbles: true });
       inputRef.current.dispatchEvent(ev);
     }
@@ -40,9 +48,12 @@ const InputAmount: FC<Props> = ({
         <div className={st.accountBalanceInfo}>
           ± {accountBalance[0].balance.toFixed(4)} {accountBalance[0].symbol} (≈
           {accountBalance[0].balanceUSD}USD)
-          <button className={st.maxButton} onClick={handleOnMaxClick}>
-            MAX
-          </button>
+          {maxAmount &&
+            parseFloat((props.value as string) || "0") < maxAmount && (
+              <button className={st.maxButton} onClick={handleOnMaxClick}>
+                MAX
+              </button>
+            )}
         </div>
       )}
       <input

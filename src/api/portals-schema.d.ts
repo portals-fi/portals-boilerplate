@@ -4,24 +4,6 @@
  */
 
 export interface paths {
-  "/v1/farm/action": {
-    get: operations["FarmController_action"];
-  };
-  "/v1/farm/approval": {
-    get: operations["FarmController_approval"];
-  };
-  "/v1/farm/opportunities": {
-    get: operations["FarmController_opportunities"];
-  };
-  "/v1/farm/account": {
-    get: operations["FarmController_account"];
-  };
-  "/v1/farm/info": {
-    get: operations["FarmController_info"];
-  };
-  "/v1/portal/list/{network}/{platform}": {
-    get: operations["PortalRegistryController_getPortal"];
-  };
   "/v2/tokens": {
     /** Returns a list of supported tokens by platform, including contextual information such as decimals, name, network, underlying tokens, price, TVL, etc. `Each filter type is concatenated with logical AND. Filter inputs that are arrays are logical OR.` */
     get: operations["SupportedController_getSupportedTokensV2"];
@@ -46,6 +28,9 @@ export interface paths {
     /** Returns the expected and minimum amount to be received as a result of using the portal. Does not guarantee or check valid execution at this price. */
     get: operations["PortalController_estimatePortal"];
   };
+  "/v1/portal/list/{network}/{platform}": {
+    get: operations["PortalRegistryController_getPortal"];
+  };
   "/v2/account": {
     /** Returns the current balance for ERC20 or network tokens for the `ownerAddress` if the balance is greater than 0 */
     get: operations["AccountController_getAccountV2"];
@@ -54,171 +39,51 @@ export interface paths {
     /** Returns the current allowance for the appropriate target based on `buyToken`, in addition to an unsigned approval transaction for use by `takerAddress` if the returned property `shouldApprove` is true */
     get: operations["ApprovalController_approve"];
   };
+  "/v1/farm/action": {
+    get: operations["FarmController_action"];
+  };
+  "/v1/farm/approval": {
+    get: operations["FarmController_approval"];
+  };
+  "/v1/farm/opportunities": {
+    get: operations["FarmController_opportunities"];
+  };
+  "/v1/farm/account": {
+    get: operations["FarmController_account"];
+  };
+  "/v1/farm/info": {
+    get: operations["FarmController_info"];
+  };
 }
 
 export interface components {
   schemas: {
-    ActionResponseContext: {
-      id: string;
-      takerAddress: string;
-      amount: string;
-      action: string;
+    TokenResponseDto: {
+      key: string;
+      name: string;
+      decimals: number;
+      symbol: string;
+      address: string;
+      addresses: { [key: string]: unknown };
       platform: string;
       network: string;
-      gasLimit?: string;
-    };
-    PortalBigNumber: {
-      /** @description Type */
-      type: string;
-      /** @description Hex string */
-      hex: string;
-    };
-    PopulatedPortalTransaction: {
-      to: string;
-      from?: string;
-      data: string;
-      /** @description BigNumber type */
-      value?: components["schemas"]["PortalBigNumber"];
-      /** @description BigNumber type */
-      gasLimit?: components["schemas"]["PortalBigNumber"];
-    };
-    ActionResponse: {
-      context: components["schemas"]["ActionResponseContext"];
-      tx: components["schemas"]["PopulatedPortalTransaction"];
-    };
-    ApprovalContext: {
-      network: string;
-      allowance?: string;
-      approvalAmount?: string;
-      shouldApprove: boolean;
-      spender: string;
-      gasLimit?: string;
-    };
-    ApprovalResponse: {
-      context: components["schemas"]["ApprovalContext"];
-      tx: components["schemas"]["PopulatedPortalTransaction"];
-    };
-    AddressSet: {
-      ethereum?: string;
-      polygon?: string;
-      solana?: string;
-      avalanche?: string;
-      arbitrum?: string;
-      optimism?: string;
-      bsc?: string;
-      fantom?: string;
-    };
-    TokenAPR: {
-      id: string;
-      key: string;
-      decimals: number;
-      name: string;
-      symbol: string;
-      /** Format: date-time */
-      updatedAt: string;
-      image: string;
+      price: number;
       images: string[];
       /** Format: date-time */
-      lastInit: string;
-      price: number;
-      liquidity: number;
-      tokens: string[];
-      platform: string;
-      address: string;
-      addresses: components["schemas"]["AddressSet"];
-      poolAddress: string;
-      network: string;
-      apr: number;
-    };
-    APRResponse: {
-      rewards: components["schemas"]["TokenAPR"][];
-      total: number;
-    };
-    Token: {
-      id: string;
-      key: string;
-      decimals: number;
-      name: string;
-      symbol: string;
-      /** Format: date-time */
       updatedAt: string;
-      image: string;
-      images: string[];
       /** Format: date-time */
-      lastInit: string;
-      price: number;
-      liquidity: number;
+      createdAt: string;
       tokens: string[];
-      platform: string;
-      address: string;
-      addresses: components["schemas"]["AddressSet"];
       poolAddress: string;
-      network: string;
-    };
-    FarmOppResponse: {
-      platform: string;
-      image: string;
-      apr: components["schemas"]["APRResponse"];
-      token: components["schemas"]["Token"];
-      network: string;
-      tvl: number;
-      id: string;
-      name: string;
-      index: number;
-    };
-    OppsResponse: {
-      totalItems: number;
-      pageItems: number;
-      more: boolean;
-      page: number;
-      opps: components["schemas"]["FarmOppResponse"][];
-    };
-    Claimable: {
-      id: string;
-      key: string;
-      decimals: number;
-      name: string;
-      symbol: string;
-      /** Format: date-time */
-      updatedAt: string;
-      image: string;
-      images: string[];
-      /** Format: date-time */
-      lastInit: string;
-      price: number;
       liquidity: number;
-      tokens: string[];
-      platform: string;
-      address: string;
-      addresses: components["schemas"]["AddressSet"];
-      poolAddress: string;
-      network: string;
-      amount: string;
-    };
-    BalancesResponse: {
-      id: string;
-      network: string;
-      platform: string;
-      amount: string;
-      claimable: components["schemas"]["Claimable"][];
-      token: components["schemas"]["Token"];
-    };
-    InfoResponse: {
-      id: string;
-      logo: string;
-      name: string;
-      url: string;
-    };
-    PortalListResponse: {
-      in: string;
-      out: string;
+      image: string;
     };
     SupportedTokenResponseV2: {
       totalItems: number;
       pageItems: number;
       more: boolean;
       page: number;
-      tokens: components["schemas"]["Token"][];
+      tokens: components["schemas"]["TokenResponseDto"][];
     };
     SupportedPlatformsV2Response: {
       platform: string;
@@ -253,6 +118,21 @@ export interface components {
       /** @description Predicted gas limit (with buffer) for the transaction */
       gasLimit: string;
     };
+    PortalBigNumber: {
+      /** @description Type */
+      type: string;
+      /** @description Hex string */
+      hex: string;
+    };
+    PopulatedPortalTransaction: {
+      to: string;
+      from?: string;
+      data: string;
+      /** @description BigNumber type */
+      value?: components["schemas"]["PortalBigNumber"];
+      /** @description BigNumber type */
+      gasLimit?: components["schemas"]["PortalBigNumber"];
+    };
     PortalResponse: {
       /** @description Contextual information about the transaction */
       context: components["schemas"]["PortalContext"];
@@ -269,211 +149,122 @@ export interface components {
       /** @description Number of decimals for buyToken */
       buyTokenDecimals: number;
     };
-    Balance: {
+    PortalListResponse: {
+      in: string;
+      out: string;
+    };
+    AccountResponseDto: {
+      totalQueried?: number;
+      balances: unknown[][];
+    };
+    ApprovalContext: {
+      network: string;
+      allowance?: string;
+      approvalAmount?: string;
+      shouldApprove: boolean;
+      spender: string;
+      gasLimit?: string;
+    };
+    ApprovalResponse: {
+      context: components["schemas"]["ApprovalContext"];
+      tx: components["schemas"]["PopulatedPortalTransaction"];
+    };
+    ActionResponseContext: {
       id: string;
+      takerAddress: string;
+      amount: string;
+      action: string;
+      platform: string;
+      network: string;
+      gasLimit?: string;
+    };
+    ActionResponse: {
+      context: components["schemas"]["ActionResponseContext"];
+      tx: components["schemas"]["PopulatedPortalTransaction"];
+    };
+    TokenAPR: {
       key: string;
-      decimals: number;
       name: string;
+      decimals: number;
       symbol: string;
-      /** Format: date-time */
-      updatedAt: string;
-      image: string;
+      address: string;
+      addresses: { [key: string]: unknown };
+      platform: string;
+      network: string;
+      price: number;
       images: string[];
       /** Format: date-time */
-      lastInit: string;
-      price: number;
-      liquidity: number;
+      updatedAt: string;
+      /** Format: date-time */
+      createdAt: string;
       tokens: string[];
-      platform: string;
-      address: string;
-      addresses: components["schemas"]["AddressSet"];
       poolAddress: string;
-      network: string;
-      balance: number;
-      balanceUSD: number;
-      rawBalance: string;
+      liquidity: number;
+      image: string;
+      apr: number;
     };
-    AccountResponse: {
-      totalQueried?: number;
-      balances: components["schemas"]["Balance"][];
+    APRResponse: {
+      rewards: components["schemas"]["TokenAPR"][];
+      total: number;
+    };
+    FarmOppResponse: {
+      platform: string;
+      image: string;
+      apr: components["schemas"]["APRResponse"];
+      token: components["schemas"]["TokenResponseDto"];
+      network: string;
+      tvl: number;
+      id: string;
+      name: string;
+      index: number;
+    };
+    OppsResponse: {
+      totalItems: number;
+      pageItems: number;
+      more: boolean;
+      page: number;
+      opps: components["schemas"]["FarmOppResponse"][];
+      rewards: string[];
+    };
+    Claimable: {
+      key: string;
+      name: string;
+      decimals: number;
+      symbol: string;
+      address: string;
+      addresses: { [key: string]: unknown };
+      platform: string;
+      network: string;
+      price: number;
+      images: string[];
+      /** Format: date-time */
+      updatedAt: string;
+      /** Format: date-time */
+      createdAt: string;
+      tokens: string[];
+      poolAddress: string;
+      liquidity: number;
+      image: string;
+      amount: string;
+    };
+    BalancesResponse: {
+      id: string;
+      network: string;
+      platform: string;
+      amount: string;
+      claimable: components["schemas"]["Claimable"][];
+      token: components["schemas"]["TokenResponseDto"];
+    };
+    InfoResponse: {
+      id: string;
+      logo: string;
+      name: string;
+      url: string;
     };
   };
 }
 
 export interface operations {
-  FarmController_action: {
-    parameters: {
-      query: {
-        /** ID of the opportunity to perform the action on */
-        id: string;
-        /** User address */
-        takerAddress: string;
-        /** Amount of tokens */
-        amount?: string;
-        /** Type of action */
-        action: "stake" | "unstake" | "claim" | "exit";
-        /** When true, gas will be estimated and the transaction will be validated for success. */
-        validate?: boolean;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["ActionResponse"];
-        };
-      };
-    };
-  };
-  FarmController_approval: {
-    parameters: {
-      query: {
-        /** ID of the opportunity to perform the action on */
-        id: string;
-        /** User address */
-        takerAddress: string;
-        /** Amount of tokens */
-        amount?: string;
-        /** Type of action */
-        action: "stake" | "unstake" | "claim" | "exit";
-        /** When true, gas will be estimated and the transaction will be validated for success. */
-        validate?: boolean;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["ApprovalResponse"];
-        };
-      };
-    };
-  };
-  FarmController_opportunities: {
-    parameters: {
-      query: {
-        /** Optional search string that searches the contents for matches with token name (e.g. "balancer usdc usdt dai") */
-        search?: string;
-        /** Optional comma-separated unique ids of the opportunities to query */
-        ids?: string;
-        /** Optional comma-separated list of keys of the tokens to stake, in [network]:[address] format */
-        tokens?: string;
-        /** Optional comma-separated list of networks to select from (ethereum, avalanche, etc.) */
-        networks?: string;
-        /** Optional comma-separated list of platforms to select from */
-        platforms?: string;
-        /** Optional minimum liquidity/TVL (in USD) in the farm */
-        minLiquidity?: number;
-        /** Optional maximum liquidity/TVL (in USD) in the farm */
-        maxLiquidity?: number;
-        /** Field to sort items by (Default: apr) */
-        sortBy: "platform" | "tvl" | "total" | "apr" | "name";
-        /** Sort direction (Default: desc) */
-        sortDirection: "asc" | "desc";
-        /** Number of items to return `(Max: 250)` */
-        limit: number;
-        /** Page number for batch of items to return. Must also provide limit if page provided. `(Default: 0)` */
-        page: number;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["OppsResponse"];
-        };
-      };
-    };
-  };
-  FarmController_account: {
-    parameters: {
-      query: {
-        /** User address */
-        takerAddress: string;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["BalancesResponse"][];
-        };
-      };
-    };
-  };
-  FarmController_info: {
-    parameters: {
-      query: {
-        /** Platform ID */
-        platform?: string;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["InfoResponse"][];
-        };
-      };
-    };
-  };
-  PortalRegistryController_getPortal: {
-    parameters: {
-      path: {
-        /** The network to use (ethereum, avalanche, etc.) */
-        network:
-          | "ethereum"
-          | "optimism"
-          | "fantom"
-          | "arbitrum"
-          | "polygon"
-          | "avalanche"
-          | "bsc";
-        /** The platform to retrieve portal addresses for */
-        platform:
-          | "native"
-          | "basic"
-          | "aavev2"
-          | "aavev2wrapped"
-          | "aavev3"
-          | "apeswap"
-          | "apeswap-lending"
-          | "balancerv2"
-          | "balancerv2boosted"
-          | "bankerjoe"
-          | "beethovenx"
-          | "beefy"
-          | "biswap"
-          | "benqi"
-          | "compound"
-          | "convex"
-          | "curve"
-          | "geist"
-          | "ironbank"
-          | "mdex"
-          | "mmfinance"
-          | "nomiswap"
-          | "pancakeswap"
-          | "pangolin"
-          | "quickswap"
-          | "scream"
-          | "shibaswap"
-          | "spiritswap"
-          | "spookyswap"
-          | "stargate"
-          | "sushiswap"
-          | "thegranary"
-          | "traderjoe"
-          | "uniswapv2"
-          | "venus"
-          | "yearn"
-          | "yearncrv"
-          | "custom";
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": components["schemas"]["PortalListResponse"];
-        };
-      };
-    };
-  };
   /** Returns a list of supported tokens by platform, including contextual information such as decimals, name, network, underlying tokens, price, TVL, etc. `Each filter type is concatenated with logical AND. Filter inputs that are arrays are logical OR.` */
   SupportedController_getSupportedTokensV2: {
     parameters: {
@@ -510,11 +301,14 @@ export interface operations {
           | "nomiswap"
           | "pancakeswap"
           | "pangolin"
+          | "pooltogether"
           | "quickswap"
           | "scream"
           | "shibaswap"
           | "spiritswap"
           | "spookyswap"
+          | "stakedao"
+          | "stakedao-vaults"
           | "stargate"
           | "sushiswap"
           | "thegranary"
@@ -539,19 +333,18 @@ export interface operations {
         minLiquidity?: number;
         /** Optional maximum liquidity/TVL (in USD) available if asset is a pool */
         maxLiquidity?: number;
-        /** Optional field to sort items by (Default: name) */
+        /** Optional field to sort items by (Default: sorted by internal id) */
         sortBy?:
-          | "id"
+          | "key"
           | "decimals"
           | "name"
           | "symbol"
           | "updatedAt"
-          | "lastInit"
           | "price"
           | "liquidity"
           | "platform"
           | "network";
-        /** Optional sort direction (Default: desc) */
+        /** Optional sort direction (Default: asc) */
         sortDirection?: "asc" | "desc";
         /** Optional number of items to return `(Max: 250)` */
         limit?: number;
@@ -686,6 +479,71 @@ export interface operations {
       };
     };
   };
+  PortalRegistryController_getPortal: {
+    parameters: {
+      path: {
+        /** The network to use (ethereum, avalanche, etc.) */
+        network:
+          | "ethereum"
+          | "optimism"
+          | "fantom"
+          | "arbitrum"
+          | "polygon"
+          | "avalanche"
+          | "bsc";
+        /** The platform to retrieve portal addresses for */
+        platform:
+          | "native"
+          | "basic"
+          | "aavev2"
+          | "aavev2wrapped"
+          | "aavev3"
+          | "apeswap"
+          | "apeswap-lending"
+          | "balancerv2"
+          | "balancerv2boosted"
+          | "bankerjoe"
+          | "beethovenx"
+          | "beefy"
+          | "biswap"
+          | "benqi"
+          | "compound"
+          | "convex"
+          | "curve"
+          | "geist"
+          | "ironbank"
+          | "mdex"
+          | "mmfinance"
+          | "nomiswap"
+          | "pancakeswap"
+          | "pangolin"
+          | "pooltogether"
+          | "quickswap"
+          | "scream"
+          | "shibaswap"
+          | "spiritswap"
+          | "spookyswap"
+          | "stakedao"
+          | "stakedao-vaults"
+          | "stargate"
+          | "sushiswap"
+          | "thegranary"
+          | "traderjoe"
+          | "uniswapv2"
+          | "venus"
+          | "yearn"
+          | "yearncrv"
+          | "custom";
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["PortalListResponse"];
+        };
+      };
+    };
+  };
   /** Returns the current balance for ERC20 or network tokens for the `ownerAddress` if the balance is greater than 0 */
   AccountController_getAccountV2: {
     parameters: {
@@ -707,7 +565,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["AccountResponse"];
+          "application/json": components["schemas"]["AccountResponseDto"];
         };
       };
     };
@@ -741,6 +599,121 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["ApprovalResponse"];
+        };
+      };
+    };
+  };
+  FarmController_action: {
+    parameters: {
+      query: {
+        /** ID of the opportunity to perform the action on */
+        id: string;
+        /** User address */
+        takerAddress: string;
+        /** Amount of tokens */
+        amount?: string;
+        /** Type of action */
+        action: "stake" | "unstake" | "claim" | "exit";
+        /** When true, gas will be estimated and the transaction will be validated for success. */
+        validate?: boolean;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["ActionResponse"];
+        };
+      };
+    };
+  };
+  FarmController_approval: {
+    parameters: {
+      query: {
+        /** ID of the opportunity to perform the action on */
+        id: string;
+        /** User address */
+        takerAddress: string;
+        /** Amount of tokens */
+        amount?: string;
+        /** Type of action */
+        action: "stake" | "unstake" | "claim" | "exit";
+        /** When true, gas will be estimated and the transaction will be validated for success. */
+        validate?: boolean;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["ApprovalResponse"];
+        };
+      };
+    };
+  };
+  FarmController_opportunities: {
+    parameters: {
+      query: {
+        /** Optional search string that searches the contents for matches with token name (e.g. "balancer usdc usdt dai") */
+        search?: string;
+        /** Optional comma-separated unique ids of the opportunities to query */
+        ids?: string;
+        /** Optional comma-separated list of keys of the tokens to stake, in [network]:[address] format */
+        tokens?: string;
+        /** Optional comma-separated list of keys for the rewards to filter by (farm should reward at least one of these), in [network]:[address] format */
+        rewards?: string;
+        /** Optional comma-separated list of networks to select from (ethereum, avalanche, etc.) */
+        networks?: string;
+        /** Optional comma-separated list of platforms to select from */
+        platforms?: string;
+        /** Optional minimum liquidity/TVL (in USD) in the farm */
+        minLiquidity?: number;
+        /** Optional maximum liquidity/TVL (in USD) in the farm */
+        maxLiquidity?: number;
+        /** Field to sort items by (Default: apr) */
+        sortBy: "platform" | "tvl" | "total" | "apr" | "name";
+        /** Sort direction (Default: desc) */
+        sortDirection: "asc" | "desc";
+        /** Number of items to return `(Max: 250)` */
+        limit: number;
+        /** Page number for batch of items to return. Must also provide limit if page provided. `(Default: 0)` */
+        page: number;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["OppsResponse"];
+        };
+      };
+    };
+  };
+  FarmController_account: {
+    parameters: {
+      query: {
+        /** User address */
+        takerAddress: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["BalancesResponse"][];
+        };
+      };
+    };
+  };
+  FarmController_info: {
+    parameters: {
+      query: {
+        /** Platform ID */
+        platform?: string;
+        /** If `true` return tokens and their opportunities in each farm */
+        opportunities?: boolean;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["InfoResponse"][];
         };
       };
     };

@@ -11,6 +11,26 @@ export declare type SupportedNetworks =
   | "avalanche"
   | "bsc";
 
+export interface AccountBalance {
+  key: string;
+  name: string;
+  decimals: number;
+  symbol: string;
+  price: number;
+  address: string;
+  addresses: Record<string, string>;
+  platform: string;
+  network: string;
+  updatedAt: string;
+  createdAt: string;
+  tokens: string[];
+  liquidity: number;
+  image: string;
+  balanceUSD: number;
+  balance: number;
+  rawBalance: string;
+}
+
 export interface IState {
   network: {
     available: SupportedNetworks[];
@@ -21,7 +41,7 @@ export interface IState {
     list: string[];
     status: STATUS_TYPE;
     selected: string;
-    selectedBalances: components["schemas"]["AccountResponse"]["balances"];
+    selectedBalances: AccountBalance[]; // TODO: This should came from components["schemas"] but thers something wrong on the schema so for know is hardcoded
   };
 }
 
@@ -76,7 +96,7 @@ export type IAction =
     }
   | {
       type: actionTypes.SET_SELECTED_ACCOUNT_BALANCES;
-      value: components["schemas"]["AccountResponse"]["balances"];
+      value: AccountBalance[];
     };
 
 const reducer = (state: IState, action: IAction): IState => {

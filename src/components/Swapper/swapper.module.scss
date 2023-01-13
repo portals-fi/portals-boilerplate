@@ -1,8 +1,36 @@
+.swapperContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
 
-  .swapperContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  h3 {
+    flex: 1;
+    text-align: center;
   }
 
+  button {
+    cursor: pointer;
+  }
+}
+
+.swapInfoTable {
+  font-size: 0.7em;
+  width: 100%;
+  td:nth-child(odd) {
+    text-align: left;
+  }
+  td:nth-child(even) {
+    text-align: right;
+  }
+}
+
+.errorMessage {
+  color: red;
+}
