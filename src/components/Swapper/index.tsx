@@ -25,7 +25,7 @@ const Swapper: FC = () => {
   const swapMutation = useMetamaskSwap();
 
   const [{ accounts, network }] = useStore();
-  const selectedNetwork = useRef(network.selected); // THIS SHOULD ONLY BE USED FOR CLEAR INPUTS ON NETWORK CHANGES (ONLY NECESSARY FOR DEV, AVOID CLEAR INPUTS ON SAVE CHANGES)
+  const selectedNetwork = useRef(network.selected); // THIS SHOULD ONLY BE USED FOR CLEAR INPUTS ON NETWORK CHANGES (ONLY NECESSARY FOR DEV, THIS AVOID CLEAR INPUTS ON SAVE CHANGES)
 
   const {
     data: validation,
