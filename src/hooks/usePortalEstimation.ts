@@ -10,12 +10,12 @@ const usePortalEstimation = (
     buyToken,
     sellAmount,
     sellToken,
-    slippagePercentage = 0.005,
+    slippagePercentage,
   }: {
     buyToken: string;
     sellAmount: string;
     sellToken: string;
-    slippagePercentage?: number;
+    slippagePercentage: number;
   },
   enabled: boolean
 ) => {
@@ -64,6 +64,7 @@ const usePortalEstimation = (
     {
       enabled,
       retry: false,
+      refetchInterval: 10000,
     }
   );
   return results;

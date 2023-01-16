@@ -10,13 +10,13 @@ const usePortal = (
     buyToken,
     sellAmount,
     sellToken,
-    slippagePercentage = 0.005,
+    slippagePercentage,
     validate = false,
   }: {
     buyToken: string;
     sellAmount: string;
     sellToken: string;
-    slippagePercentage?: number;
+    slippagePercentage: number;
     validate?: boolean;
   },
   enabled: boolean
@@ -68,6 +68,7 @@ const usePortal = (
     {
       enabled,
       retry: false,
+      refetchInterval: 10000,
     }
   );
   return results;

@@ -34,3 +34,35 @@
 .errorMessage {
   color: red;
 }
+
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: 100%;
+  .modalTitle {
+    margin: 6px 0;
+    padding: 0 18px;
+  }
+  .settingsContent {
+    margin: 6px 0;
+    padding: 0 18px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+  }
+  .modalActions {
+    margin: 6px 0;
+    padding: 0 18px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      cursor: pointer;
+    }
+  }
+}

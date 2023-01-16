@@ -30,6 +30,10 @@ div.customModal {
 
   &.fixedHeight {
     height: 80vh;
+
+    &.smallHeight {
+      height: 30vh;
+    }
   }
 }
 

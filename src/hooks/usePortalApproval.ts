@@ -24,6 +24,7 @@ const usePortalApproval = (
       clearTimeout(handler);
     };
   }, [sellAmount]);
+
   const results = useQuery<
     Promise<ApiResponse<components["schemas"]["ApprovalResponse"]>>,
     ApiError & {

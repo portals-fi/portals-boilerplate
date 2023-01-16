@@ -11,6 +11,8 @@ import usePortalApproval from "hooks/usePortalApproval";
 import usePortalEstimation from "hooks/usePortalEstimation";
 import { FC, useEffect, useRef, useState } from "react";
 import { useStore } from "store";
+import SlippageModal from "./SlippageModal";
+import SwapInfoTable from "./SwapInfoTable";
 import st from "./swapper.module.scss";
 
 const Swapper: FC = () => {
@@ -20,12 +22,18 @@ const Swapper: FC = () => {
     useState<components["schemas"]["TokenResponseDto"]>();
   const [swapInputAmount, setSwapInputAmount] = useState<string>("");
   const [proceedWithOrder, setProceedWithOrder] = useState(false);
+  const [slippage, setSlippage] = useState(0.05);
 
   const approveMutation = useMetamaskApproval();
   const swapMutation = useMetamaskSwap();
 
   const [{ accounts, network }] = useStore();
   const selectedNetwork = useRef(network.selected); // THIS SHOULD ONLY BE USED FOR CLEAR INPUTS ON NETWORK CHANGES (ONLY NECESSARY FOR DEV, THIS AVOID CLEAR INPUTS ON SAVE CHANGES)
+
+  const sellAmount = `${Math.floor(
+    parseFloat(swapInputAmount || "0") *
+      Math.pow(10, selectedSwapSellToken?.decimals || 18)
+  )}`;
 
   const {
     data: validation,
@@ -37,10 +45,7 @@ const Swapper: FC = () => {
     {
       buyToken: selectedSwapBuyToken?.address || "",
       sellToken: selectedSwapSellToken?.address || "",
-      sellAmount: `${Math.floor(
-        parseFloat(swapInputAmount) *
-          Math.pow(10, selectedSwapSellToken?.decimals || 18)
-      )}`,
+      sellAmount,
     },
     proceedWithOrder && selectedSwapSellToken?.platform !== "native"
   );
@@ -53,16 +58,13 @@ const Swapper: FC = () => {
     data: portal,
     isLoading: isPortalLoading,
     error: portalError,
-    refetch: refetchPortal,
   } = usePortal(
     {
       buyToken: selectedSwapBuyToken?.address || "",
-      sellAmount: `${Math.floor(
-        parseFloat(swapInputAmount) *
-          Math.pow(10, selectedSwapSellToken?.decimals || 18)
-      )}`,
+      sellAmount,
       sellToken: selectedSwapSellToken?.address || "",
       validate: !shouldApprove,
+      slippagePercentage: slippage,
     },
     proceedWithOrder &&
       (isApprovalFetched || selectedSwapSellToken?.platform === "native")
@@ -75,15 +77,14 @@ const Swapper: FC = () => {
   } = usePortalEstimation(
     {
       buyToken: selectedSwapBuyToken?.address || "",
-      sellAmount: `${Math.floor(
-        parseFloat(swapInputAmount) *
-          Math.pow(10, selectedSwapSellToken?.decimals || 18)
-      )}`,
+      sellAmount,
       sellToken: selectedSwapSellToken?.address || "",
+      slippagePercentage: slippage,
     },
     !!selectedSwapBuyToken &&
       !!selectedSwapSellToken &&
-      parseFloat(swapInputAmount) > 0
+      parseFloat(sellAmount) > 0 &&
+      !proceedWithOrder
   );
 
   const isLoading =
@@ -99,44 +100,6 @@ const Swapper: FC = () => {
     setSelectedSwapBuyToken(selectedSwapSellToken);
   };
 
-  const renderTable = () => {
-    const sellAmount =
-      parseFloat(portal?.data.context.sellAmount || "0") /
-      Math.pow(10, selectedSwapSellToken?.decimals || 18);
-    const buyAmount =
-      parseFloat(portal?.data.context.buyAmount || "0") /
-      Math.pow(10, selectedSwapBuyToken?.decimals || 18);
-
-    return (
-      <table className={st.swapInfoTable}>
-        <tbody>
-          <tr>
-            <td>1 {selectedSwapSellToken?.symbol}</td>
-            <td>
-              ≈{(buyAmount / sellAmount).toFixed(5)}{" "}
-              {selectedSwapBuyToken?.symbol}
-            </td>
-          </tr>
-          <tr>
-            <td>1 {selectedSwapBuyToken?.symbol}</td>
-            <td>
-              ≈{(sellAmount / buyAmount).toFixed(5)}{" "}
-              {selectedSwapSellToken?.symbol}
-            </td>
-          </tr>
-          <tr>
-            <td>Minimum received:</td>
-            <td>
-              {parseFloat(portal?.data.context.minBuyAmount || "0") /
-                Math.pow(10, selectedSwapBuyToken?.decimals || 18)}{" "}
-              {selectedSwapBuyToken?.symbol}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    );
-  };
-
   useEffect(() => {
     if (approveMutation.isSuccess) {
       refetchValidation();
@@ -149,7 +112,7 @@ const Swapper: FC = () => {
       // We might need to wait for the swap to happen on chain
       // TODO: Do something after swap!!
     }
-  }, [swapMutation.isSuccess, refetchValidation]);
+  }, [swapMutation.isSuccess]);
 
   useEffect(() => {
     if (selectedNetwork.current !== network.selected) {
@@ -161,16 +124,6 @@ const Swapper: FC = () => {
     }
   }, [network, network.selected]);
 
-  useEffect(() => {
-    // refetch portal every 10 secs
-    const refetchTimeout = setInterval(() => {
-      if (portal) {
-        refetchPortal();
-      }
-    }, 10000);
-    return () => clearInterval(refetchTimeout);
-  }, [portal, refetchPortal]);
-
   return (
     <div className={st.swapperContainer}>
       <div className={st.title}>
@@ -178,6 +131,9 @@ const Swapper: FC = () => {
           <button onClick={() => setProceedWithOrder(false)}>{"<"}</button>
         )}
         <h3>{proceedWithOrder ? "Confirm Swap" : "Swap"}</h3>
+        {!proceedWithOrder && (
+          <SlippageModal setSlippage={setSlippage} slippage={slippage} />
+        )}
       </div>
       <InputBuyToken
         amount={swapInputAmount}
@@ -207,7 +163,14 @@ const Swapper: FC = () => {
         loading={isLoading}
         tokenChangeDisabled={proceedWithOrder}
       />
-      {proceedWithOrder && renderTable()}
+      {proceedWithOrder && (
+        <SwapInfoTable
+          buyToken={selectedSwapBuyToken}
+          sellToken={selectedSwapSellToken}
+          portal={portal?.data}
+          slippage={slippage}
+        />
+      )}
       {accounts.status !== "connected" ? (
         <WalletButton />
       ) : (
