@@ -36,7 +36,6 @@ const SlippageModal: FC<Props> = ({ setSlippage, slippage }) => {
               value={slip}
               onChange={(e) => {
                 const value = e.target.value;
-                console.log(re.test(value));
                 if (re.test(value)) {
                   setSlip(value);
                 }
