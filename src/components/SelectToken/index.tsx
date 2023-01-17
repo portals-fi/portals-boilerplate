@@ -18,14 +18,8 @@ const SelectToken: FC<Props> = ({ querySearch, onSelected }) => {
   const scrollableRef = useRef<HTMLDivElement>(null);
   const isOnScreen = useOnScreen(hasMoreRef, scrollableRef);
 
-  const {
-    isLoading,
-    data,
-    isFetchingNextPage,
-    fetchNextPage,
-    refetch,
-    hasNextPage,
-  } = useTokenList({ search });
+  const { isLoading, data, isFetchingNextPage, fetchNextPage, hasNextPage } =
+    useTokenList({ search });
 
   useLayoutEffect(() => {
     if (isOnScreen && !isFetchingNextPage) {
@@ -34,11 +28,7 @@ const SelectToken: FC<Props> = ({ querySearch, onSelected }) => {
   }, [fetchNextPage, isFetchingNextPage, isOnScreen]);
 
   const handleOnInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    clearTimeout(debTimeout.current);
-    debTimeout.current = setTimeout(() => {
-      refetch();
-      setSearch(ev.target.value);
-    }, 500);
+    setSearch(ev.target.value);
   };
 
   return (
