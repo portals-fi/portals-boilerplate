@@ -2,7 +2,6 @@ import { components } from "api/portals-schema";
 import cls from "classnames";
 import LoadingSpinner from "components/LoadingSpinner";
 import { DetailedHTMLProps, FC, InputHTMLAttributes, useRef } from "react";
-import { AccountBalance } from "store/Reducer";
 import { maxAmountSpend } from "utils/maxAmountSpend";
 import st from "./input-amount.module.scss";
 
@@ -13,7 +12,7 @@ interface Props
   > {
   loading?: boolean;
   token?: components["schemas"]["TokenResponseDto"];
-  accountBalance?: AccountBalance[];
+  accountBalance?: components["schemas"]["BalanceResponseDto"][];
 }
 
 const InputAmount: FC<Props> = ({

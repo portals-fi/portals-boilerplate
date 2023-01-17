@@ -153,9 +153,32 @@ export interface components {
       in: string;
       out: string;
     };
+    BalanceResponseDto: {
+      key: string;
+      name: string;
+      decimals: number;
+      symbol: string;
+      address: string;
+      addresses: { [key: string]: unknown };
+      platform: string;
+      network: string;
+      price: number;
+      images: string[];
+      /** Format: date-time */
+      updatedAt: string;
+      /** Format: date-time */
+      createdAt: string;
+      tokens: string[];
+      poolAddress: string;
+      liquidity: number;
+      image: string;
+      balance: number;
+      balanceUSD: number;
+      rawBalance: string;
+    };
     AccountResponseDto: {
       totalQueried?: number;
-      balances: unknown[][];
+      balances: components["schemas"]["BalanceResponseDto"][];
     };
     ApprovalContext: {
       network: string;

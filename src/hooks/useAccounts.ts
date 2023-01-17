@@ -2,7 +2,7 @@ import { getAccountBalances } from "api/fetcher";
 import { useEffect } from "react";
 import { useQuery } from "react-query";
 import { useStore } from "store";
-import { AccountBalance, actionTypes } from "store/Reducer";
+import { actionTypes } from "store/Reducer";
 
 const useAccountBalances = () => {
   const [{ accounts, network }, dispatch] = useStore();
@@ -30,7 +30,7 @@ const useAccountBalances = () => {
     }
     dispatch({
       type: actionTypes.SET_SELECTED_ACCOUNT_BALANCES,
-      value: accountBalances.data.balances as unknown as AccountBalance[],
+      value: accountBalances.data.balances,
     });
   }, [
     accountBalances?.data.balances,
