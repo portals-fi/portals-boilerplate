@@ -13,7 +13,6 @@ interface Props {
 
 const SelectToken: FC<Props> = ({ querySearch, onSelected }) => {
   const [search, setSearch] = useState<string>(querySearch || "");
-  const debTimeout = useRef<NodeJS.Timeout>();
   const hasMoreRef = useRef<HTMLDivElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const isOnScreen = useOnScreen(hasMoreRef, scrollableRef);
