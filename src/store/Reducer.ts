@@ -21,7 +21,7 @@ export interface IState {
     list: string[];
     status: STATUS_TYPE;
     selected: string;
-    selectedBalances: components["schemas"]["BalanceResponseDto"][]; // TODO: This should came from components["schemas"] but thers something wrong on the schema so for know is hardcoded
+    selectedBalances: components["schemas"]["BalanceResponseDto"][];
   };
 }
 
