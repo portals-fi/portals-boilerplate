@@ -11,6 +11,7 @@ export default fetcher;
 
 // Add all necessary api endpoint requests here:
 
+export const getTokensList = fetcher.path("/v2/tokens").method("get").create();
 export const getNetworksList = fetcher
   .path("/v1/networks")
   .method("get")
@@ -19,16 +20,19 @@ export const getPlatformsList = fetcher
   .path("/v2/platforms")
   .method("get")
   .create();
-export const getTokensList = fetcher.path("/v2/tokens").method("get").create();
 export const getAccountBalances = fetcher
   .path("/v2/account")
   .method("get")
   .create();
-export const estimateTransaction = fetcher
+export const getPortalEstimation = fetcher
   .path("/v1/portal/{network}/estimate")
   .method("get")
   .create();
-export const fetchFromPortal = fetcher
+export const getPortal = fetcher
   .path("/v1/portal/{network}")
+  .method("get")
+  .create();
+export const getApproval = fetcher
+  .path("/v1/approval/{network}")
   .method("get")
   .create();

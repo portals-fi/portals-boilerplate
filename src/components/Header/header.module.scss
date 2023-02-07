@@ -32,3 +32,15 @@
   height: 22px;
   width: 22px;
 }
+
+.modalTitle {
+  margin: 6px 0;
+  padding: 0 18px;
+}
+
+.networksList {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

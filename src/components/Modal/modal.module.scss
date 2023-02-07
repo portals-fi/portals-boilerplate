@@ -22,10 +22,19 @@ div.customModal {
   max-width: 500px;
   width: 100%;
   margin: 2rem;
-  height: 80vh;
+  max-height: 80vh;
   position: relative;
-  background-color: transparent;
   padding: 0;
+  background-color: buttonface;
+  border-radius: 5px;
+
+  &.fixedHeight {
+    height: 80vh;
+
+    &.smallHeight {
+      height: 30vh;
+    }
+  }
 }
 
 .closeButton {
@@ -41,7 +50,7 @@ div.customModal {
   background-color: inherit;
 
   svg > path {
-    fill: white;
+    fill: rgb(165, 165, 165);
   }
 }
 

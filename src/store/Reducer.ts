@@ -21,7 +21,7 @@ export interface IState {
     list: string[];
     status: STATUS_TYPE;
     selected: string;
-    selectedBalances: components["schemas"]["AccountResponse"]["balances"];
+    selectedBalances: components["schemas"]["BalanceResponseDto"][];
   };
 }
 
@@ -76,7 +76,7 @@ export type IAction =
     }
   | {
       type: actionTypes.SET_SELECTED_ACCOUNT_BALANCES;
-      value: components["schemas"]["AccountResponse"]["balances"];
+      value: components["schemas"]["BalanceResponseDto"][];
     };
 
 const reducer = (state: IState, action: IAction): IState => {

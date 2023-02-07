@@ -8,6 +8,20 @@
 
 .searchInput {
   width: calc(100% - 54px);
+  border: 2px solid rgb(165, 165, 165);
+}
+
+.hasMore {
+  width: 100%;
+  padding: 5px;
+}
+
+.noResults {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .tokensList {
@@ -25,4 +39,10 @@
       border: 2px solid transparent;
     }
   }
+}
+
+.loadingSpinner {
+  border-top: 0.5em solid rgba(92, 92, 92, 0.2);
+  border-right: 0.5em solid rgba(92, 92, 92, 0.2);
+  border-bottom: 0.5em solid rgba(92, 92, 92, 0.2);
 }

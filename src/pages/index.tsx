@@ -1,34 +1,14 @@
-import { getNetworksList, getPlatformsList } from "api/fetcher";
 import Header from "components/Header";
 import Swapper from "components/Swapper";
+import useNetworkList from "hooks/useNetworkList";
+import usePlatformsList from "hooks/usePlatformsList";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useEffect } from "react";
-import { useStore } from "store";
-import { actionTypes, SupportedNetworks } from "store/Reducer";
 import st from "../styles/Home.module.scss";
 
-const amountRegExp = /^[0-9]*[.]?[0-9]*$/;
-
 const Home: NextPage = () => {
-  const [{ platforms }, dispatch] = useStore();
-
-  useEffect(() => {
-    (async () => {
-      const [netResults, platResults] = await Promise.all([
-        getNetworksList({}),
-        getPlatformsList({}),
-      ]);
-      dispatch({
-        type: actionTypes.SET_AVAILABLE_NETWORKS,
-        value: netResults.data as SupportedNetworks[],
-      });
-      dispatch({
-        type: actionTypes.SET_PLATFORMS_LIST,
-        value: platResults.data,
-      });
-    })();
-  }, [dispatch]);
+  usePlatformsList();
+  useNetworkList();
 
   return (
     <div className={st.container}>

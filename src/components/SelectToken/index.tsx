@@ -1,81 +1,33 @@
-import { getTokensList } from "api/fetcher";
 import { components } from "api/portals-schema";
+import LoadingSpinner from "components/LoadingSpinner";
 import TokenButton from "components/TokenButton";
 import { useOnScreen } from "hooks/useOnScreen";
-import { FC, useEffect, useRef, useState } from "react";
-import { SupportedNetworks } from "store/Reducer";
+import useTokenList from "hooks/useTokensList";
+import { FC, useLayoutEffect, useRef, useState } from "react";
 import st from "./select-token.module.scss";
 
 interface Props {
   querySearch?: string;
-  onSelected?: (token: components["schemas"]["Token"]) => void;
-  selectedNetwork: SupportedNetworks;
+  onSelected?: (token: components["schemas"]["TokenResponseDto"]) => void;
 }
 
-const SelectToken: FC<Props> = ({
-  querySearch,
-  onSelected,
-  selectedNetwork,
-}) => {
-  const [tokens, setTokens] = useState<components["schemas"]["Token"][]>([]);
-  const [totalItems, setTotalItems] = useState<number>(0);
-  const [pageItems, setPageItems] = useState<number>(0);
-  const [more, setMore] = useState<boolean>(false);
-  const [newPage, setNewPage] = useState<number>(0);
-  const [page, setPage] = useState<number>(0);
-  const [newSearch, setNewSearch] = useState<string>(querySearch || "");
-  const [search, setSearch] = useState<string>();
-  const debTimeout = useRef<NodeJS.Timeout>();
+const SelectToken: FC<Props> = ({ querySearch, onSelected }) => {
+  const [search, setSearch] = useState<string>(querySearch || "");
   const hasMoreRef = useRef<HTMLDivElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const isOnScreen = useOnScreen(hasMoreRef, scrollableRef);
 
-  useEffect(() => {
-    if (search !== newSearch || page !== newPage) {
-      (async () => {
-        try {
-          const tokensListResponse = (
-            await getTokensList({
-              search: encodeURIComponent(newSearch),
-              page: newPage,
-              // platforms: ["native"],
-              networks: [selectedNetwork],
-              sortBy: "liquidity",
-            })
-          ).data;
+  const { isLoading, data, isFetchingNextPage, fetchNextPage, hasNextPage } =
+    useTokenList({ search });
 
-          setTokens((prev) =>
-            newPage > 0
-              ? [...prev, ...tokensListResponse.tokens]
-              : tokensListResponse.tokens
-          );
-          setTotalItems(tokensListResponse.totalItems);
-          setPageItems(tokensListResponse.pageItems);
-          setMore(tokensListResponse.more);
-          setPage(tokensListResponse.page);
-          setSearch(newSearch || "");
-        } catch (e) {
-          if (e instanceof getTokensList.Error) {
-            const error = e.getActualType();
-            console.error(error);
-          }
-        }
-      })();
+  useLayoutEffect(() => {
+    if (isOnScreen && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  }, [newSearch, newPage, search, page, selectedNetwork]);
-
-  useEffect(() => {
-    if (isOnScreen && more) {
-      setNewPage((prev) => prev + 1);
-    }
-  }, [isOnScreen, more]);
+  }, [fetchNextPage, isFetchingNextPage, isOnScreen]);
 
   const handleOnInputChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    clearTimeout(debTimeout.current);
-    debTimeout.current = setTimeout(() => {
-      setNewPage(0);
-      setNewSearch(ev.target.value);
-    }, 500);
+    setSearch(ev.target.value);
   };
 
   return (
@@ -85,24 +37,40 @@ const SelectToken: FC<Props> = ({
         type="text"
         onChange={handleOnInputChange}
         placeholder="Ex: Eth"
-        defaultValue={newSearch}
+        defaultValue={search}
       />
       <div className={st.tokensList} ref={scrollableRef}>
-        {tokens.map((token) => (
-          <TokenButton
-            key={token.key}
-            onClick={() => {
-              onSelected && onSelected(token);
-            }}
-            token={token}
-          />
-        ))}
-        <div
-          style={{ height: "20px", width: "100%" }}
-          ref={hasMoreRef}
-          className={st.hasMore}
-        >
-          {more && "Loading..."}
+        {data?.pages.length === 0 && !isLoading && !!search && (
+          <div className={st.noResults}>
+            There are no results for &quot;{search}&quot;
+          </div>
+        )}
+        {data?.pages.length === 0 && isLoading && (
+          <div className={st.noResults}>
+            <LoadingSpinner className={st.loadingSpinner} visible={true} />
+          </div>
+        )}
+        {data?.pages.map((pageContent) =>
+          pageContent.data.tokens
+            .map((token) => ({
+              ...token,
+              image:
+                !!token.image && token.image.startsWith("http")
+                  ? token.image
+                  : "",
+            }))
+            .map((token) => (
+              <TokenButton
+                key={token.key}
+                onClick={() => {
+                  onSelected && onSelected(token);
+                }}
+                token={token}
+              />
+            ))
+        )}
+        <div ref={hasMoreRef} className={st.hasMore}>
+          {hasNextPage ? "Loading..." : ""}
         </div>
       </div>
     </div>

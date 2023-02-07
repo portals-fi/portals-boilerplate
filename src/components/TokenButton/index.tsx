@@ -1,4 +1,5 @@
 import { components } from "api/portals-schema";
+import missingImage from "assets/images/missingToken.svg";
 import cls from "classnames";
 import Image from "next/image";
 import { ButtonHTMLAttributes, DetailedHTMLProps, FC } from "react";
@@ -9,7 +10,7 @@ interface Props
     ButtonHTMLAttributes<HTMLButtonElement>,
     HTMLButtonElement
   > {
-  token?: components["schemas"]["Token"];
+  token?: components["schemas"]["TokenResponseDto"];
 }
 
 const TokenButton: FC<Props> = ({ token, children, className, ...props }) => {
@@ -17,8 +18,10 @@ const TokenButton: FC<Props> = ({ token, children, className, ...props }) => {
     <button className={cls(st.tokenButton, className)} {...props}>
       {!!token ? (
         <>
-          {token?.image && (
+          {token?.image ? (
             <Image src={token.image} alt={token.name} width={30} height={30} />
+          ) : (
+            <Image alt={token.name} {...missingImage} />
           )}
           <span className={st.tokenInfo}>
             <span className={st.tokenSymbol}>{token?.symbol}</span>

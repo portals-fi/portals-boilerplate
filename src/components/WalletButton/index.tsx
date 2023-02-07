@@ -1,7 +1,7 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
 import { FC, useEffect, useRef, useState } from "react";
 import { useStore } from "store";
-import { actionTypes, Maybe } from "store/Reducer";
+import { actionTypes } from "store/Reducer";
 import st from "./wallet-button.module.scss";
 
 const ONBOARD_TEXT = "Install MetaMask";
@@ -45,37 +45,6 @@ const WalletButton: FC = () => {
       });
     }
   }, [accounts.list, accounts.status, dispatch]);
-
-  useEffect(() => {
-    function handleNewAccounts(newAccounts: Maybe<string[]>) {
-      dispatch({
-        type: actionTypes.SET_ACCOUNTS_LIST,
-        value: (newAccounts || []) as string[],
-      });
-    }
-
-    if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      if (
-        typeof window !== "undefined" &&
-        typeof window.ethereum !== "undefined"
-      ) {
-        window.ethereum
-          .request<Maybe<string[]>>({ method: "eth_requestAccounts" })
-          .then(handleNewAccounts);
-        window.ethereum.on("accountsChanged", (...args: unknown[]) =>
-          handleNewAccounts(args as Maybe<string[]>)
-        );
-      }
-      return () => {
-        if (
-          typeof window !== "undefined" &&
-          typeof window.ethereum !== "undefined"
-        ) {
-          window.ethereum.removeListener("accountsChanged", handleNewAccounts);
-        }
-      };
-    }
-  }, [dispatch]);
 
   const onClick = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {

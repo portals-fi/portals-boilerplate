@@ -1,9 +1,3 @@
-
-.selectAToken {
-  min-width: 350px;
-  min-height: 69px;
-}
-
 .swapperContainer {
   display: flex;
   flex-direction: column;
@@ -11,6 +5,64 @@
   align-items: center;
 }
 
-.amountInput {
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
+  h3 {
+    flex: 1;
+    text-align: center;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+.swapInfoTable {
+  font-size: 0.7em;
+  width: 100%;
+  td:nth-child(odd) {
+    text-align: left;
+  }
+  td:nth-child(even) {
+    text-align: right;
+  }
+}
+
+.errorMessage {
+  color: red;
+}
+
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: 100%;
+  .modalTitle {
+    margin: 6px 0;
+    padding: 0 18px;
+  }
+  .settingsContent {
+    margin: 6px 0;
+    padding: 0 18px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+  }
+  .modalActions {
+    margin: 6px 0;
+    padding: 0 18px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+
+    button {
+      cursor: pointer;
+    }
+  }
 }
